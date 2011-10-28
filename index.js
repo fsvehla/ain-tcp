@@ -151,6 +151,7 @@ SysLogger.prototype._sendTCP = function(message, severity, tag, done) {
   var self = this;
   tag = tag || this.tag;
   if(this._tcpConnection == null) {
+  if(this._tcpConnection == null || !this._tcpConnection.writable) {
     this._setupTCP(function() {
       self._sendTCP(message, severity, tag, done);
     });
