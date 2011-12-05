@@ -2,7 +2,7 @@ var dgram = require('dgram'),
     Buffer = require('buffer').Buffer,
     events = require('events'),
     net = require('net'),
-    sys = require('sys');
+    util= require('util');
 
 var Facility = {
     kern:   0,
@@ -50,7 +50,7 @@ function format(f) {
     }
     return objects.join(' ');
   }
-  
+
   var i = 1;
   var args = arguments;
   var str = String(f).replace(formatRegExp, function(x) {
@@ -100,7 +100,7 @@ function SysLogger() {
     this._times = {};
     this._tcpConnection = null;
 }
-sys.inherits(SysLogger, events.EventEmitter);
+util.inherits(SysLogger, events.EventEmitter);
 
 /**
  * Send message with UDP
@@ -112,9 +112,9 @@ SysLogger.prototype._sendUDP = function(message, severity, tag) {
     tag = tag || this.tag;
     var client = dgram.createSocket('udp4');
     var message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
-        getDate() + ' ' + this.hostname + ' ' + 
+        getDate() + ' ' + this.hostname + ' ' +
         tag + '[' + process.pid + ']:' + message);
-    client.send(message, 0, message.length, this.port, this.sysloghost, 
+    client.send(message, 0, message.length, this.port, this.sysloghost,
         function(err) {
             if (err) {
               if(!self.quiet) console.error('Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
@@ -157,10 +157,10 @@ SysLogger.prototype._sendTCP = function(message, severity, tag, done) {
     return;
   }
   var msg = new Buffer('<' + (this.facility * 8 + severity) + '>' +
-      getDate() + ' ' + this.hostname + ' ' + 
+      getDate() + ' ' + this.hostname + ' ' +
       tag + '[' + process.pid + ']:' + message);
   if(message.charAt(message.length-1) != '\n') msg+='\n';
-  this._tcpConnection.write(msg, undefined, 
+  this._tcpConnection.write(msg, undefined,
       function(err) {
           if (err) {
             if(!self.quiet) console.log('Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
@@ -176,8 +176,8 @@ SysLogger.prototype._sendTCP = function(message, severity, tag, done) {
  * @param {String} tag By default is __filename
  * @param {Facility|Number|String} By default is "user"
  * @param {String} hostname log messages will appear from. By default is "localhost"
- * @param {String} Syslog server and optional port number, default is "localhost:514" 
- * @param {String} protocol to use for syslog communication, can be "tcp" or "udp".  Default is "tcp" 
+ * @param {String} Syslog server and optional port number, default is "localhost:514"
+ * @param {String} protocol to use for syslog communication, can be "tcp" or "udp".  Default is "tcp"
  */
 SysLogger.prototype.set = function(tag, facility, hostname, sysloghost, protocol, quiet) {
     this.setTag(tag);
@@ -202,7 +202,7 @@ SysLogger.prototype.setTag = function(tag) {
 };
 SysLogger.prototype.setFacility = function(facility) {
     this.facility = facility || Facility.user;
-    if (typeof this.facility == 'string') 
+    if (typeof this.facility == 'string')
         this.facility = Facility[this.facility];
     return this;
 };
@@ -232,7 +232,7 @@ SysLogger.prototype.setQuiet = function(quiet) {
   return this;
 }
 /**
- * Get new instance of SysLogger. All arguments is similar as `set` 
+ * Get new instance of SysLogger. All arguments is similar as `set`
  * @returns {SysLogger}
  */
 SysLogger.prototype.get = function() {
